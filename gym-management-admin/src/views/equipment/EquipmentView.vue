@@ -5,7 +5,7 @@
         <h2>器材管理</h2>
         <p>管理器材档案、库存、入库、出库与维护记录</p>
       </div>
-      <el-button type="primary" @click="dialogVisible = true">新增器材</el-button>
+      <el-button type="primary" @click="openCreate">新增器材</el-button>
     </div>
 
     <div class="stats-grid">
@@ -24,10 +24,6 @@
             <el-option label="维护中" value="维护中" />
           </el-select>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary">查询</el-button>
-          <el-button @click="reset">重置</el-button>
-        </el-form-item>
       </el-form>
     </el-card>
 
@@ -44,36 +40,31 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180">
-          <template #default>
-            <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
-            <el-button link type="danger">删除</el-button>
+          <template #default="scope">
+            <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
+            <el-button link type="danger" @click="removeEquipment(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <EquipmentFormDialog v-model="dialogVisible" title="器材信息" @submit="handleSubmit" />
+    <EquipmentFormDialog v-model="dialogVisible" :title="editingRow?.id ? '编辑器材' : '新增器材'" :form-data="formData" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import EquipmentFormDialog from '../../components/equipment/EquipmentFormDialog.vue'
 import { getEquipmentSummary } from '../../api/equipment-dashboard'
-import { getEquipmentList } from '../../api/equipment'
+import { createEquipment, deleteEquipment, getEquipmentList, updateEquipment } from '../../api/equipment'
 
 const dialogVisible = ref(false)
+const editingRow = ref<any | null>(null)
+const formData = ref<any>({})
 const keyword = ref('')
 const status = ref('')
-const handleSubmit = (payload: unknown) => console.log('equipment submit', payload)
-const reset = () => { keyword.value = ''; status.value = '' }
-
-const stats = ref([
-  { label: '器材总数', value: 58 },
-  { label: '正常使用', value: 52 },
-  { label: '维护中', value: 4 },
-  { label: '库存预警', value: 2 }
-])
+const stats = ref<any[]>([])
 const sourceItems = ref<any[]>([])
 const items = computed(() => sourceItems.value.filter(item => {
   const byName = !keyword.value || item.name?.includes(keyword.value)
@@ -81,28 +72,74 @@ const items = computed(() => sourceItems.value.filter(item => {
   return byName && byStatus
 }))
 
-onMounted(async () => {
-  try {
-    const [summaryRes, listRes] = await Promise.all([getEquipmentSummary(), getEquipmentList()])
-    if (summaryRes?.data) {
-      stats.value = [
-        { label: '器材总数', value: summaryRes.data.totalEquipment },
-        { label: '正常使用', value: summaryRes.data.normalEquipment },
-        { label: '维护中', value: summaryRes.data.maintainingEquipment },
-        { label: '库存预警', value: summaryRes.data.warningEquipment }
-      ]
-    }
-    if (listRes?.data) {
-      sourceItems.value = listRes.data
-    }
-  } catch (error) {
-    console.warn('equipment dashboard fallback', error)
-    sourceItems.value = [
-      { equipmentNo: 'EQ-001', name: '跑步机', category: '有氧器械', quantity: 12, location: 'A区', status: '正常' },
-      { equipmentNo: 'EQ-002', name: '史密斯架', category: '力量器械', quantity: 3, location: 'B区', status: '维护中' }
+const mapStatusText = (statusValue: string) => (statusValue === 'NORMAL' ? '正常' : '维护中')
+const mapStatusCode = (statusText: string) => (statusText === '正常' ? 'NORMAL' : 'MAINTAINING')
+
+const mapItem = (item: any) => ({
+  id: item.id,
+  equipmentNo: item.equipmentNo,
+  name: item.equipmentName,
+  category: item.categoryId ?? '-',
+  categoryId: item.categoryId,
+  quantity: item.quantity,
+  location: item.location,
+  status: mapStatusText(item.status)
+})
+
+const loadData = async () => {
+  const [summaryRes, listRes] = await Promise.all([getEquipmentSummary(), getEquipmentList()])
+  if (summaryRes?.data) {
+    stats.value = [
+      { label: '器材总数', value: summaryRes.data.totalEquipment },
+      { label: '正常使用', value: summaryRes.data.normalEquipment },
+      { label: '维护中', value: summaryRes.data.maintainingEquipment },
+      { label: '库存预警', value: summaryRes.data.warningEquipment }
     ]
   }
-})
+  sourceItems.value = (listRes?.data || []).map(mapItem)
+}
+
+const openCreate = () => {
+  editingRow.value = null
+  formData.value = { equipmentNo: '', name: '', categoryId: 1, quantity: 1, location: '', status: '正常' }
+  dialogVisible.value = true
+}
+
+const openEdit = (row: any) => {
+  editingRow.value = row
+  formData.value = { equipmentNo: row.equipmentNo, name: row.name, categoryId: row.categoryId || 1, quantity: row.quantity, location: row.location, status: row.status }
+  dialogVisible.value = true
+}
+
+const handleSubmit = async (payload: any) => {
+  const req = {
+    id: editingRow.value?.id,
+    equipmentNo: payload.equipmentNo,
+    equipmentName: payload.name,
+    categoryId: Number(payload.categoryId) || 1,
+    quantity: Number(payload.quantity) || 0,
+    availableQuantity: Number(payload.quantity) || 0,
+    location: payload.location,
+    status: mapStatusCode(payload.status)
+  }
+  if (editingRow.value?.id) {
+    await updateEquipment(req)
+    ElMessage.success('器材更新成功')
+  } else {
+    await createEquipment(req)
+    ElMessage.success('器材创建成功')
+  }
+  await loadData()
+}
+
+const removeEquipment = async (row: any) => {
+  await ElMessageBox.confirm(`确认删除器材【${row.name}】吗？`, '提示', { type: 'warning' })
+  await deleteEquipment(row.id)
+  ElMessage.success('删除成功')
+  await loadData()
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped lang="scss">

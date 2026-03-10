@@ -27,11 +27,46 @@ public class MemberOrderServiceImpl implements MemberOrderService {
 
     @Override
     public void save(MemberOrder order) {
+        if (order.getDiscountAmount() == null) {
+            order.setDiscountAmount(java.math.BigDecimal.ZERO);
+        }
+        if (order.getPaymentStatus() == null) {
+            order.setPaymentStatus("UNPAID");
+        }
+        if (order.getOrderStatus() == null) {
+            order.setOrderStatus("CREATED");
+        }
+        if (order.getAuditStatus() == null) {
+            order.setAuditStatus("PENDING");
+        }
+        if (order.getPaymentMethod() == null) {
+            order.setPaymentMethod("CASH");
+        }
         memberOrderMapper.insert(order);
     }
 
     @Override
     public void update(MemberOrder order) {
+        if (order.getDiscountAmount() == null) {
+            order.setDiscountAmount(java.math.BigDecimal.ZERO);
+        }
+        if (order.getPaymentStatus() == null) {
+            order.setPaymentStatus("UNPAID");
+        }
+        if (order.getOrderStatus() == null) {
+            order.setOrderStatus("CREATED");
+        }
+        if (order.getAuditStatus() == null) {
+            order.setAuditStatus("PENDING");
+        }
+        if (order.getPaymentMethod() == null) {
+            order.setPaymentMethod("CASH");
+        }
         memberOrderMapper.updateById(order);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        memberOrderMapper.deleteById(id);
     }
 }

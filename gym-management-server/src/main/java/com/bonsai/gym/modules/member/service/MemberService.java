@@ -9,4 +9,5 @@ public interface MemberService {
     Member getById(Long id);
     void save(Member member);
     void update(Member member);
+    void deleteById(Long id);
 }

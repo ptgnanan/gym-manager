@@ -82,18 +82,14 @@ const cards = ref([
 ])
 
 onMounted(async () => {
-  try {
-    const res = await getDashboardStats()
-    if (res?.data) {
-      cards.value = [
-        { label: '今日新增会员', value: res.data.newMembers, tip: '较昨日 +12%' },
-        { label: '今日订单数', value: res.data.todayOrders, tip: '已支付 21 单' },
-        { label: '课程预约数', value: res.data.reservations, tip: '团课更受欢迎' },
-        { label: '器材预警', value: res.data.equipmentWarnings, tip: '建议尽快维护' }
-      ]
-    }
-  } catch (error) {
-    console.warn('dashboard stats fallback', error)
+  const res = await getDashboardStats()
+  if (res?.data) {
+    cards.value = [
+      { label: '今日新增会员', value: res.data.newMembers, tip: '较昨日 +12%' },
+      { label: '今日订单数', value: res.data.todayOrders, tip: '已支付 21 单' },
+      { label: '课程预约数', value: res.data.reservations, tip: '团课更受欢迎' },
+      { label: '器材预警', value: res.data.equipmentWarnings, tip: '建议尽快维护' }
+    ]
   }
 })
 </script>

@@ -19,4 +19,45 @@ public class CourseServiceImpl implements CourseService {
     public List<Course> listCourses() {
         return courseMapper.selectList(Wrappers.<Course>lambdaQuery().orderByDesc(Course::getId));
     }
+
+    @Override
+    public Course getById(Long id) {
+        return courseMapper.selectById(id);
+    }
+
+    @Override
+    public void save(Course course) {
+        if (course.getCourseType() == null) {
+            course.setCourseType("GROUP");
+        }
+        if (course.getDurationMinutes() == null) {
+            course.setDurationMinutes(60);
+        }
+        if (course.getCapacity() == null) {
+            course.setCapacity(20);
+        }
+        if (course.getStatus() == null) {
+            course.setStatus(1);
+        }
+        courseMapper.insert(course);
+    }
+
+    @Override
+    public void update(Course course) {
+        if (course.getDurationMinutes() == null) {
+            course.setDurationMinutes(60);
+        }
+        if (course.getCapacity() == null) {
+            course.setCapacity(20);
+        }
+        if (course.getStatus() == null) {
+            course.setStatus(1);
+        }
+        courseMapper.updateById(course);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        courseMapper.deleteById(id);
+    }
 }

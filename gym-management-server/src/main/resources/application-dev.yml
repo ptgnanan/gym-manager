@@ -8,3 +8,7 @@ spring:
 logging:
   level:
     com.bonsai.gym: debug
+
+jwt:
+  secret: gym-management-secret-key-for-jwt-token-generation-2026-must-be-at-least-256-bits
+  expiration: 86400000

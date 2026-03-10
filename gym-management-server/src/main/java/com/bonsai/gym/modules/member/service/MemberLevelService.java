@@ -9,4 +9,5 @@ public interface MemberLevelService {
     MemberLevel getById(Long id);
     void save(MemberLevel level);
     void update(MemberLevel level);
+    void deleteById(Long id);
 }

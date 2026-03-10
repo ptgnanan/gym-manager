@@ -17,10 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-const props = defineProps<{ modelValue: boolean; title?: string }>()
+import { computed, reactive, watch } from 'vue'
+const props = defineProps<{ modelValue: boolean; title?: string; formData?: Record<string, any> | null }>()
 const emit = defineEmits(['update:modelValue', 'submit'])
 const visible = computed({ get: () => props.modelValue, set: (v:boolean) => emit('update:modelValue', v) })
-const form = { coachNo: 'C003', name: '', phone: '', specialty: '', introduction: '' }
+const defaultForm = { coachNo: '', name: '', phone: '', specialty: '', introduction: '' }
+const form = reactive({ ...defaultForm })
+watch(() => props.modelValue, (open) => {
+  if (!open) return
+  Object.assign(form, defaultForm, props.formData || {})
+}, { immediate: true })
 const submit = () => { emit('submit', { ...form }); visible.value = false }
 </script>

@@ -3,7 +3,7 @@
     <el-form :model="form" label-width="90px">
       <el-form-item label="等级名称"><el-input v-model="form.levelName" /></el-form-item>
       <el-form-item label="等级值"><el-input-number v-model="form.levelValue" :min="1" :max="10" /></el-form-item>
-      <el-form-item label="折扣率"><el-input v-model="form.discountRate" placeholder="如 92%" /></el-form-item>
+      <el-form-item label="折扣率"><el-input-number v-model="form.discountRate" :min="1" :max="100" /></el-form-item>
       <el-form-item label="说明"><el-input v-model="form.description" type="textarea" :rows="3" /></el-form-item>
     </el-form>
     <template #footer>
@@ -14,10 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-const props = defineProps<{ modelValue: boolean; title?: string }>()
+import { computed, reactive, watch } from 'vue'
+const props = defineProps<{ modelValue: boolean; title?: string; formData?: Record<string, any> | null }>()
 const emit = defineEmits(['update:modelValue', 'submit'])
 const visible = computed({ get: () => props.modelValue, set: (v:boolean) => emit('update:modelValue', v) })
-const form = { levelName: '', levelValue: 1, discountRate: '100%', description: '' }
+const defaultForm = { levelName: '', levelValue: 1, discountRate: 100, description: '' }
+const form = reactive({ ...defaultForm })
+watch(() => props.modelValue, (open) => {
+  if (!open) return
+  Object.assign(form, defaultForm, props.formData || {})
+}, { immediate: true })
 const submit = () => { emit('submit', { ...form }); visible.value = false }
 </script>

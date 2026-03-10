@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h2>系统管理</h2>
-        <p>管理系统用户、角色与菜单权限（演示版）</p>
+        <p>管理系统用户、角色与菜单权限（接口版）</p>
       </div>
       <el-button type="primary">新增用户</el-button>
     </div>

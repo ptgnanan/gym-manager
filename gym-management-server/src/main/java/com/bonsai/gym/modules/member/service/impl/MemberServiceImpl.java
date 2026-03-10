@@ -7,6 +7,7 @@ import com.bonsai.gym.modules.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,11 +28,31 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void save(Member member) {
+        if (member.getStatus() == null) {
+            member.setStatus(1);
+        }
+        if (member.getLevelId() == null) {
+            member.setLevelId(1L);
+        }
+        if (member.getRegisterTime() == null) {
+            member.setRegisterTime(LocalDateTime.now());
+        }
         memberMapper.insert(member);
     }
 
     @Override
     public void update(Member member) {
+        if (member.getStatus() == null) {
+            member.setStatus(1);
+        }
+        if (member.getLevelId() == null) {
+            member.setLevelId(1L);
+        }
         memberMapper.updateById(member);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        memberMapper.deleteById(id);
     }
 }

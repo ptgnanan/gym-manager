@@ -1,6 +1,6 @@
 import request from '../utils/request'
 
 export const getCourseList = () => request.get('/api/course/list')
-export const getCoachList = () => request.get('/api/coach/list')
-export const getFeedbackList = () => request.get('/api/feedback/list')
-export const getAnnouncementList = () => request.get('/api/content/announcements')
+export const createCourse = (data: Record<string, unknown>) => request.post('/api/course', data)
+export const updateCourse = (data: Record<string, unknown>) => request.put('/api/course', data)
+export const deleteCourse = (id: number) => request.delete(`/api/course/${id}`)

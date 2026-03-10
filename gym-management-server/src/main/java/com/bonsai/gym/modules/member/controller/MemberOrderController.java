@@ -36,4 +36,10 @@ public class MemberOrderController {
         memberOrderService.update(order);
         return ApiResponse.success("更新成功", null);
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        memberOrderService.deleteById(id);
+        return ApiResponse.success("删除成功", null);
+    }
 }

@@ -5,7 +5,7 @@
         <h2>内容管理</h2>
         <p>管理轮播图、公告和系统内容说明</p>
       </div>
-      <el-button type="primary" @click="dialogVisible = true">发布公告</el-button>
+      <el-button type="primary" @click="openCreate">发布公告</el-button>
     </div>
 
     <div class="stats-grid">
@@ -41,9 +41,9 @@
           <el-table-column prop="category" label="分类" min-width="100" />
           <el-table-column prop="status" label="状态" min-width="100" />
           <el-table-column label="操作" width="160">
-            <template #default>
-              <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
-              <el-button link type="danger">删除</el-button>
+            <template #default="scope">
+              <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
+              <el-button link type="danger" @click="removeAnnouncement(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -52,26 +52,30 @@
         </div>
       </el-card>
     </div>
-    <AnnouncementFormDialog v-model="dialogVisible" title="公告信息" @submit="handleSubmit" />
+    <AnnouncementFormDialog v-model="dialogVisible" :title="editingRow?.id ? '编辑公告' : '发布公告'" :form-data="formData" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import AnnouncementFormDialog from '../../components/content/AnnouncementFormDialog.vue'
 import { getContentSummary } from '../../api/content-dashboard'
-import { getAnnouncements } from '../../api/content'
+import { createAnnouncement, deleteAnnouncement, getAnnouncements, getBanners, updateAnnouncement } from '../../api/content'
 
 const dialogVisible = ref(false)
+const editingRow = ref<any | null>(null)
+const formData = ref<any>({})
 const keyword = ref('')
-const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
 const stats = ref<any[]>([])
 const banners = ref<any[]>([])
 const sourceAnnouncements = ref<any[]>([])
 const announcements = computed(() => sourceAnnouncements.value.filter(item => !keyword.value || item.title?.includes(keyword.value)))
 
-onMounted(async () => {
-  const [summaryRes, announcementRes] = await Promise.all([getContentSummary(), getAnnouncements()])
+const mapStatus = (status: string) => (status === 'PUBLISHED' ? '已发布' : '草稿')
+
+const loadData = async () => {
+  const [summaryRes, announcementRes, bannerRes] = await Promise.all([getContentSummary(), getAnnouncements(), getBanners()])
   if (summaryRes?.data) {
     stats.value = [
       { label: '轮播图数量', value: summaryRes.data.bannerCount },
@@ -80,12 +84,60 @@ onMounted(async () => {
       { label: '草稿数', value: summaryRes.data.draftCount }
     ]
   }
-  banners.value = [
-    { title: '新学期健身优惠活动', sort: 1, status: '启用' },
-    { title: '私教课程推荐', sort: 2, status: '启用' }
-  ]
-  sourceAnnouncements.value = announcementRes?.data || []
-})
+  banners.value = (bannerRes?.data || []).map((item: any) => ({
+    title: item.title,
+    sort: item.sortNo,
+    status: item.status === 1 ? '启用' : '停用'
+  }))
+  sourceAnnouncements.value = (announcementRes?.data || []).map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    category: item.categoryId ?? '-',
+    summary: item.summary,
+    content: item.content,
+    status: mapStatus(item.publishStatus)
+  }))
+}
+
+const openCreate = () => {
+  editingRow.value = null
+  formData.value = { title: '', categoryId: 1, summary: '', content: '' }
+  dialogVisible.value = true
+}
+
+const openEdit = (row: any) => {
+  editingRow.value = row
+  formData.value = { title: row.title, categoryId: row.category || 1, summary: row.summary, content: row.content }
+  dialogVisible.value = true
+}
+
+const handleSubmit = async (payload: any) => {
+  const req = {
+    id: editingRow.value?.id,
+    categoryId: Number(payload.categoryId) || 1,
+    title: payload.title,
+    summary: payload.summary,
+    content: payload.content,
+    publishStatus: 'PUBLISHED'
+  }
+  if (editingRow.value?.id) {
+    await updateAnnouncement(req)
+    ElMessage.success('公告更新成功')
+  } else {
+    await createAnnouncement(req)
+    ElMessage.success('公告发布成功')
+  }
+  await loadData()
+}
+
+const removeAnnouncement = async (row: any) => {
+  await ElMessageBox.confirm(`确认删除公告【${row.title}】吗？`, '提示', { type: 'warning' })
+  await deleteAnnouncement(row.id)
+  ElMessage.success('删除成功')
+  await loadData()
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped lang="scss">

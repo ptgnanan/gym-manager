@@ -33,7 +33,7 @@
         <ul class="tips-list">
           <li>先展示系统首页，再说明前后端分离架构。</li>
           <li>重点讲会员、课程、器材、内容四个主模块。</li>
-          <li>说明页面已逐步接入后端演示接口，体现系统完整性。</li>
+          <li>说明页面已逐步接入后端接口，体现系统完整性。</li>
           <li>结尾展示本页，强调技术栈与当前系统状态。</li>
         </ul>
       </el-card>
@@ -42,15 +42,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { getSystemStatus } from '../../api/system-status'
-
-const stats = ref([
-  { label: '前端状态', value: 'running' },
-  { label: '模块数量', value: 10 },
-  { label: '页面数量', value: 13 },
-  { label: '演示进度', value: '持续推进中' }
-])
 
 const detail = ref({
   frontend: 'running',
@@ -60,26 +53,23 @@ const detail = ref({
   time: '-'
 })
 
+const stats = computed(() => [
+  { label: '前端状态', value: detail.value.frontend },
+  { label: '模块数量', value: 10 },
+  { label: '页面数量', value: 14 },
+  { label: '演示进度', value: detail.value.backend }
+])
+
 const loadStatus = async () => {
-  try {
-    const res = await getSystemStatus()
-    if (res?.data) {
-      detail.value = {
-        frontend: res.data.frontend,
-        backend: res.data.backend,
-        database: res.data.database,
-        architecture: res.data.architecture,
-        time: res.data.time ?? '-'
-      }
-      stats.value = [
-        { label: '前端状态', value: res.data.frontend },
-        { label: '模块数量', value: 10 },
-        { label: '页面数量', value: 13 },
-        { label: '演示进度', value: '持续推进中' }
-      ]
+  const res = await getSystemStatus()
+  if (res?.data) {
+    detail.value = {
+      frontend: res.data.frontend,
+      backend: res.data.backend,
+      database: res.data.database,
+      architecture: res.data.architecture,
+      time: res.data.time ?? '-'
     }
-  } catch (error) {
-    console.warn('system status fallback', error)
   }
 }
 

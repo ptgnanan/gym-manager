@@ -9,4 +9,5 @@ public interface MemberOrderService {
     MemberOrder getById(Long id);
     void save(MemberOrder order);
     void update(MemberOrder order);
+    void deleteById(Long id);
 }

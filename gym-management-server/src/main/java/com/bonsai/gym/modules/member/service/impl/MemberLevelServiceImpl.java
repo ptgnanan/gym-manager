@@ -27,11 +27,22 @@ public class MemberLevelServiceImpl implements MemberLevelService {
 
     @Override
     public void save(MemberLevel level) {
+        if (level.getStatus() == null) {
+            level.setStatus(1);
+        }
         memberLevelMapper.insert(level);
     }
 
     @Override
     public void update(MemberLevel level) {
+        if (level.getStatus() == null) {
+            level.setStatus(1);
+        }
         memberLevelMapper.updateById(level);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        memberLevelMapper.deleteById(id);
     }
 }

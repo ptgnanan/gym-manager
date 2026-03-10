@@ -9,4 +9,5 @@ public interface MemberPackageService {
     MemberPackage getById(Long id);
     void save(MemberPackage memberPackage);
     void update(MemberPackage memberPackage);
+    void deleteById(Long id);
 }

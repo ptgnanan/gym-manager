@@ -1,22 +1,45 @@
 package com.bonsai.gym.modules.equipment.controller;
 
 import com.bonsai.gym.common.api.ApiResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.bonsai.gym.modules.equipment.entity.Equipment;
+import com.bonsai.gym.modules.equipment.service.EquipmentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/equipment")
+@RequiredArgsConstructor
 public class EquipmentController {
 
+    private final EquipmentService equipmentService;
+
     @GetMapping("/list")
-    public ApiResponse<List<Map<String, Object>>> list() {
-        return ApiResponse.success(List.of(
-                Map.of("equipmentNo", "EQ-001", "name", "跑步机", "category", "有氧器械", "quantity", 12, "location", "A区", "status", "正常"),
-                Map.of("equipmentNo", "EQ-002", "name", "史密斯架", "category", "力量器械", "quantity", 3, "location", "B区", "status", "维护中")
-        ));
+    public ApiResponse<List<Equipment>> list() {
+        return ApiResponse.success(equipmentService.listEquipment());
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<Equipment> detail(@PathVariable Long id) {
+        return ApiResponse.success(equipmentService.getById(id));
+    }
+
+    @PostMapping
+    public ApiResponse<Void> save(@RequestBody Equipment equipment) {
+        equipmentService.save(equipment);
+        return ApiResponse.success("保存成功", null);
+    }
+
+    @PutMapping
+    public ApiResponse<Void> update(@RequestBody Equipment equipment) {
+        equipmentService.update(equipment);
+        return ApiResponse.success("更新成功", null);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        equipmentService.deleteById(id);
+        return ApiResponse.success("删除成功", null);
     }
 }

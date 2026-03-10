@@ -5,7 +5,7 @@
         <h2>教练管理</h2>
         <p>管理教练信息、专长方向与教学状态</p>
       </div>
-      <el-button type="primary" @click="dialogVisible = true">新增教练</el-button>
+      <el-button type="primary" @click="openCreate">新增教练</el-button>
     </div>
 
     <div class="stats-grid">
@@ -27,26 +27,28 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160">
-          <template #default>
-            <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
-            <el-button link type="danger">删除</el-button>
+          <template #default="scope">
+            <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
+            <el-button link type="danger" @click="removeCoach(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <CoachFormDialog v-model="dialogVisible" title="教练信息" @submit="handleSubmit" />
+    <CoachFormDialog v-model="dialogVisible" :title="editingRow?.id ? '编辑教练' : '新增教练'" :form-data="formData" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import CoachFormDialog from '../../components/coach/CoachFormDialog.vue'
-import { getCoachList } from '../../api/coach'
+import { createCoach, deleteCoach, getCoachList, updateCoach } from '../../api/coach'
 
 const dialogVisible = ref(false)
-const handleSubmit = (payload: unknown) => console.log('coach submit', payload)
+const editingRow = ref<any | null>(null)
 const coaches = ref<any[]>([])
+const formData = ref<any>({})
 const stats = computed(() => [
   { label: '教练总数', value: coaches.value.length },
   { label: '在职教练', value: coaches.value.filter(i => i.status === '在职').length },
@@ -54,8 +56,61 @@ const stats = computed(() => [
   { label: '今日上课', value: 12 }
 ])
 
-onMounted(async () => {
+const mapCoach = (item: any) => ({
+  id: item.id,
+  coachNo: item.coachNo,
+  name: item.name,
+  phone: item.phone,
+  specialty: item.specialty,
+  introduction: item.introduction,
+  status: item.status === 1 ? '在职' : '离职'
+})
+
+const loadCoaches = async () => {
   const res = await getCoachList()
-  coaches.value = res?.data || []
+  coaches.value = (res?.data || []).map(mapCoach)
+}
+
+const openCreate = () => {
+  editingRow.value = null
+  formData.value = { coachNo: '', name: '', phone: '', specialty: '', introduction: '' }
+  dialogVisible.value = true
+}
+
+const openEdit = (row: any) => {
+  editingRow.value = row
+  formData.value = { ...row }
+  dialogVisible.value = true
+}
+
+const handleSubmit = async (payload: any) => {
+  const req = {
+    id: editingRow.value?.id,
+    coachNo: payload.coachNo,
+    name: payload.name,
+    phone: payload.phone,
+    specialty: payload.specialty,
+    introduction: payload.introduction,
+    status: 1
+  }
+  if (editingRow.value?.id) {
+    await updateCoach(req)
+    ElMessage.success('教练更新成功')
+  } else {
+    await createCoach(req)
+    ElMessage.success('教练创建成功')
+  }
+  await loadCoaches()
+}
+
+const removeCoach = async (row: any) => {
+  await ElMessageBox.confirm(`确认删除教练【${row.name}】吗？`, '提示', { type: 'warning' })
+  await deleteCoach(row.id)
+  ElMessage.success('删除成功')
+  await loadCoaches()
+}
+
+onMounted(async () => {
+  await loadCoaches()
 })
 </script>

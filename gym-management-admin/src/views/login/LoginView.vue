@@ -27,6 +27,7 @@ import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { loginApi } from '../../api/auth'
+import { setToken, setUser } from '../../utils/auth'
 
 const router = useRouter()
 const loading = ref(false)
@@ -36,12 +37,20 @@ const goHome = async () => {
   loading.value = true
   try {
     const res = await loginApi(form)
-    ElMessage.success(`登录成功：${res?.data?.username || form.username}`)
-    router.push('/dashboard')
+    if (res?.data?.token) {
+      setToken(res.data.token)
+      setUser({
+        username: res.data.username,
+        nickname: res.data.nickname,
+        userId: res.data.userId
+      })
+      ElMessage.success(`登录成功，欢迎 ${res.data.nickname || res.data.username}`)
+      router.push('/dashboard')
+    } else {
+      ElMessage.error('登录失败，请检查返回数据')
+    }
   } catch (error) {
-    console.warn('login fallback', error)
-    ElMessage.success('演示登录成功')
-    router.push('/dashboard')
+    console.error('login error', error)
   } finally {
     loading.value = false
   }
