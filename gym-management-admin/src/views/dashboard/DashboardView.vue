@@ -5,7 +5,10 @@
         <div class="hero-title">健身房会员管理系统</div>
         <div class="hero-subtitle">毕业设计演示版后台 · 前后端分离 · Vue3 + Spring Boot 3</div>
       </div>
-      <el-button type="primary" round>开始管理</el-button>
+      <div class="hero-actions">
+        <el-button type="primary" round @click="$router.push('/member')">开始管理</el-button>
+        <el-button plain round @click="$router.push('/system-status')">查看状态</el-button>
+      </div>
     </div>
 
     <div class="grid stats-grid">
@@ -105,6 +108,7 @@ onMounted(async () => {
 }
 .hero-title { font-size: 28px; font-weight: 800; }
 .hero-subtitle { margin-top: 8px; opacity: .92; }
+.hero-actions { display:flex; gap:12px; }
 .grid { display:grid; gap:18px; }
 .content-grid { grid-template-columns: 2fr 1fr 1fr; }
 .bottom-grid { grid-template-columns: 1.3fr 1fr; }
