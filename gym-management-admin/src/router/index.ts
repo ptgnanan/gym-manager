@@ -13,6 +13,7 @@ const routes = [
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/dashboard/DashboardView.vue') },
       { path: 'system', name: 'System', component: () => import('../views/system/SystemView.vue') },
+      { path: 'system-status', name: 'SystemStatus', component: () => import('../views/system/StatusView.vue') },
       { path: 'member', name: 'Member', component: () => import('../views/member/MemberView.vue') },
       { path: 'member-level', name: 'MemberLevel', component: () => import('../views/member/MemberLevelView.vue') },
       { path: 'member-package', name: 'MemberPackage', component: () => import('../views/member/MemberPackageView.vue') },

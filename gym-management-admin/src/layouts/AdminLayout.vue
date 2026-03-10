@@ -28,6 +28,7 @@ const router = useRouter()
 const menus = [
   { label: '仪表盘', path: '/dashboard' },
   { label: '系统管理', path: '/system' },
+  { label: '系统状态', path: '/system-status' },
   { label: '会员管理', path: '/member' },
   { label: '会员等级', path: '/member-level' },
   { label: '会员套餐', path: '/member-package' },
