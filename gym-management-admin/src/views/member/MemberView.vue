@@ -56,7 +56,7 @@
     </el-card>
 
     <el-card shadow="never">
-      <el-table :data="tableData">
+      <el-table :data="filteredMembers">
         <el-table-column prop="memberNo" label="会员编号" min-width="120" />
         <el-table-column prop="name" label="姓名" min-width="100" />
         <el-table-column prop="phone" label="手机号" min-width="140" />
@@ -76,7 +76,7 @@
         </el-table-column>
       </el-table>
       <div class="pagination-wrap">
-        <el-pagination layout="prev, pager, next, total" :total="12" />
+        <el-pagination layout="prev, pager, next, total" :total="filteredMembers.length" />
       </div>
     </el-card>
 
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import MemberFormDialog from '../../components/member/MemberFormDialog.vue'
 import { getMemberSummary, getRecentOrders } from '../../api/member-dashboard'
 
@@ -106,10 +106,16 @@ const recentOrders = ref([
   { orderNo: 'O20260310002', memberName: '李四', packageName: '私教10节课', amount: '1999.00', status: '待支付' }
 ])
 
-const tableData = [
+const tableData = ref([
   { memberNo: 'M20260310001', name: '张三', phone: '13800000001', level: '黄金会员', status: '正常', registerTime: '2026-03-10 09:30:00' },
   { memberNo: 'M20260310002', name: '李四', phone: '13800000002', level: '普通会员', status: '正常', registerTime: '2026-03-10 09:45:00' }
-]
+])
+
+const filteredMembers = computed(() => tableData.value.filter(item => {
+  const byName = !query.name || item.name.includes(query.name)
+  const byPhone = !query.phone || item.phone.includes(query.phone)
+  return byName && byPhone
+}))
 
 onMounted(async () => {
   try {
