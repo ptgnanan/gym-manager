@@ -18,6 +18,28 @@
       </div>
     </div>
 
+    <div class="member-overview-grid">
+      <el-card shadow="never">
+        <template #header>最近订单</template>
+        <el-table :data="recentOrders">
+          <el-table-column prop="orderNo" label="订单号" min-width="160" />
+          <el-table-column prop="memberName" label="会员" min-width="100" />
+          <el-table-column prop="packageName" label="套餐" min-width="140" />
+          <el-table-column prop="amount" label="金额" min-width="100" />
+          <el-table-column prop="status" label="状态" min-width="100" />
+        </el-table>
+      </el-card>
+      <el-card shadow="never">
+        <template #header>会员结构</template>
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="普通会员">126 人</el-descriptions-item>
+          <el-descriptions-item label="黄金会员">102 人</el-descriptions-item>
+          <el-descriptions-item label="钻石会员">58 人</el-descriptions-item>
+          <el-descriptions-item label="本月新增">42 人</el-descriptions-item>
+        </el-descriptions>
+      </el-card>
+    </div>
+
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
         <el-form-item label="会员姓名">
@@ -31,17 +53,6 @@
           <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
-    </el-card>
-
-    <el-card shadow="never" class="recent-card">
-      <template #header>最近订单</template>
-      <el-table :data="recentOrders">
-        <el-table-column prop="orderNo" label="订单号" min-width="160" />
-        <el-table-column prop="memberName" label="会员" min-width="100" />
-        <el-table-column prop="packageName" label="套餐" min-width="140" />
-        <el-table-column prop="amount" label="金额" min-width="100" />
-        <el-table-column prop="status" label="状态" min-width="100" />
-      </el-table>
     </el-card>
 
     <el-card shadow="never">
@@ -122,6 +133,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .actions { display:flex; gap:12px; }
-.toolbar-card, .recent-card { margin-bottom: 16px; }
+.member-overview-grid { display:grid; grid-template-columns: 1.4fr 1fr; gap:16px; margin-bottom:16px; }
+.toolbar-card { margin-bottom: 16px; }
 .pagination-wrap { display:flex; justify-content:flex-end; padding-top:16px; }
 </style>
