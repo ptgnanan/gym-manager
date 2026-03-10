@@ -40,8 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import CoachFormDialog from '../../components/coach/CoachFormDialog.vue'
+import { getCoachList } from '../../api/coach'
+
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('coach submit', payload)
 const stats = [
@@ -50,17 +52,19 @@ const stats = [
   { label: '明星私教', value: 3 },
   { label: '今日上课', value: 12 }
 ]
-const coaches = [
+const coaches = ref([
   { coachNo: 'C001', name: '王教练', phone: '13900000001', specialty: '增肌 / 力量训练', status: '在职' },
   { coachNo: 'C002', name: '刘教练', phone: '13900000002', specialty: '减脂 / 私教塑形', status: '在职' }
-]
-</script>
+])
 
-<style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
-.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
-.stat-card { padding:18px; border-radius:18px; background:linear-gradient(135deg,#ffffff,#f7fbff); border:1px solid rgba(59,130,246,.08); }
-.label { color:var(--text-sub); margin-bottom:8px; }
-.value { font-size:28px; font-weight:700; }
-</style>
+onMounted(async () => {
+  try {
+    const res = await getCoachList()
+    if (res?.data) {
+      coaches.value = res.data
+    }
+  } catch (error) {
+    console.warn('coach fallback', error)
+  }
+})
+</script>
