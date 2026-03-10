@@ -43,33 +43,30 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { getSystemHealth } from '../../api/system'
+import { getSystemRoles, getSystemUsers } from '../../api/system-manage'
 
-const sourceUsers = ref([
-  { username: 'admin', nickname: '管理员', role: '系统管理员' },
-  { username: 'reception01', nickname: '前台小李', role: '前台人员' }
-])
-const roles = ref([
-  { name: '系统管理员', desc: '拥有系统全部权限' },
-  { name: '前台人员', desc: '负责会员接待与订单处理' }
-])
+const sourceUsers = ref<any[]>([])
+const roles = ref<any[]>([])
 const stats = computed(() => [
   { label: '系统用户', value: sourceUsers.value.length },
   { label: '角色数量', value: roles.value.length },
   { label: '菜单节点', value: 36 },
-  { label: '活跃账号', value: 9 }
+  { label: '活跃账号', value: sourceUsers.value.length }
 ])
 const users = computed(() => sourceUsers.value)
 const healthText = ref('系统运行正常，接口连通中')
 
 onMounted(async () => {
-  try {
-    const res = await getSystemHealth()
-    if (res?.data?.status === 'ok') {
-      healthText.value = `服务状态正常，最近检查时间：${res.data.time}`
-    }
-  } catch (error) {
-    console.warn('system health fallback', error)
+  const [healthRes, userRes, roleRes] = await Promise.all([
+    getSystemHealth(),
+    getSystemUsers(),
+    getSystemRoles()
+  ])
+  if (healthRes?.data?.status === 'ok') {
+    healthText.value = `服务状态正常，最近检查时间：${healthRes.data.time}`
   }
+  sourceUsers.value = userRes?.data || []
+  roles.value = roleRes?.data || []
 })
 </script>
 

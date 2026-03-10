@@ -40,31 +40,22 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import CoachFormDialog from '../../components/coach/CoachFormDialog.vue'
 import { getCoachList } from '../../api/coach'
 
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('coach submit', payload)
-const stats = [
-  { label: '教练总数', value: 8 },
-  { label: '在职教练', value: 7 },
-  { label: '明星私教', value: 3 },
+const coaches = ref<any[]>([])
+const stats = computed(() => [
+  { label: '教练总数', value: coaches.value.length },
+  { label: '在职教练', value: coaches.value.filter(i => i.status === '在职').length },
+  { label: '明星私教', value: Math.min(3, coaches.value.length) },
   { label: '今日上课', value: 12 }
-]
-const coaches = ref([
-  { coachNo: 'C001', name: '王教练', phone: '13900000001', specialty: '增肌 / 力量训练', status: '在职' },
-  { coachNo: 'C002', name: '刘教练', phone: '13900000002', specialty: '减脂 / 私教塑形', status: '在职' }
 ])
 
 onMounted(async () => {
-  try {
-    const res = await getCoachList()
-    if (res?.data) {
-      coaches.value = res.data
-    }
-  } catch (error) {
-    console.warn('coach fallback', error)
-  }
+  const res = await getCoachList()
+  coaches.value = res?.data || []
 })
 </script>
