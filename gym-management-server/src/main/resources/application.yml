@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: gym-management-server
+  profiles:
+    active: dev
+
+server:
+  port: 8088
+  servlet:
+    context-path: /
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
