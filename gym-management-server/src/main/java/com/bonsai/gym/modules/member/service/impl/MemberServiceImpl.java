@@ -19,4 +19,19 @@ public class MemberServiceImpl implements MemberService {
     public List<Member> listMembers() {
         return memberMapper.selectList(Wrappers.<Member>lambdaQuery().orderByDesc(Member::getId));
     }
+
+    @Override
+    public Member getById(Long id) {
+        return memberMapper.selectById(id);
+    }
+
+    @Override
+    public void save(Member member) {
+        memberMapper.insert(member);
+    }
+
+    @Override
+    public void update(Member member) {
+        memberMapper.updateById(member);
+    }
 }

@@ -29,6 +29,9 @@ const menus = [
   { label: '仪表盘', path: '/dashboard' },
   { label: '系统管理', path: '/system' },
   { label: '会员管理', path: '/member' },
+  { label: '会员等级', path: '/member-level' },
+  { label: '会员套餐', path: '/member-package' },
+  { label: '会员订单', path: '/member-order' },
   { label: '教练管理', path: '/coach' },
   { label: '课程管理', path: '/course' },
   { label: '反馈管理', path: '/feedback' },
@@ -51,6 +54,7 @@ const go = (path: string) => router.push(path)
   background: rgba(15, 23, 42, 0.96);
   color: #fff;
   box-shadow: 8px 0 30px rgba(15, 23, 42, 0.18);
+  overflow-y: auto;
 }
 .brand {
   font-size: 22px;

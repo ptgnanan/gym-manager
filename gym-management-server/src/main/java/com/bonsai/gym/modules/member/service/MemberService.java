@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface MemberService {
     List<Member> listMembers();
+    Member getById(Long id);
+    void save(Member member);
+    void update(Member member);
 }
