@@ -47,6 +47,7 @@
 import { onMounted, ref } from 'vue'
 import AnnouncementFormDialog from '../../components/content/AnnouncementFormDialog.vue'
 import { getContentSummary } from '../../api/content-dashboard'
+import { getAnnouncements } from '../../api/content'
 
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
@@ -60,21 +61,24 @@ const banners = [
   { title: '新学期健身优惠活动', sort: 1, status: '启用' },
   { title: '私教课程推荐', sort: 2, status: '启用' }
 ]
-const announcements = [
+const announcements = ref([
   { title: '关于清明节营业时间调整通知', category: '通知', status: '已发布' },
   { title: '春季塑形挑战赛报名开始', category: '活动', status: '已发布' }
-]
+])
 
 onMounted(async () => {
   try {
-    const res = await getContentSummary()
-    if (res?.data) {
+    const [summaryRes, announcementRes] = await Promise.all([getContentSummary(), getAnnouncements()])
+    if (summaryRes?.data) {
       stats.value = [
-        { label: '轮播图数量', value: res.data.bannerCount },
-        { label: '公告总数', value: res.data.announcementCount },
-        { label: '已发布', value: res.data.publishedCount },
-        { label: '草稿数', value: res.data.draftCount }
+        { label: '轮播图数量', value: summaryRes.data.bannerCount },
+        { label: '公告总数', value: summaryRes.data.announcementCount },
+        { label: '已发布', value: summaryRes.data.publishedCount },
+        { label: '草稿数', value: summaryRes.data.draftCount }
       ]
+    }
+    if (announcementRes?.data) {
+      announcements.value = announcementRes.data
     }
   } catch (error) {
     console.warn('content dashboard fallback', error)
