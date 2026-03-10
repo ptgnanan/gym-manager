@@ -17,11 +17,16 @@
 
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
-        <el-form-item label="器材名称"><el-input placeholder="请输入器材名称" /></el-form-item>
-        <el-form-item label="状态"><el-select placeholder="请选择状态" style="width: 140px"><el-option label="正常" value="正常" /><el-option label="维护中" value="维护中" /></el-select></el-form-item>
+        <el-form-item label="器材名称"><el-input v-model="keyword" placeholder="请输入器材名称" /></el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="status" clearable placeholder="请选择状态" style="width: 140px">
+            <el-option label="正常" value="正常" />
+            <el-option label="维护中" value="维护中" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary">查询</el-button>
-          <el-button>重置</el-button>
+          <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -52,36 +57,50 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import EquipmentFormDialog from '../../components/equipment/EquipmentFormDialog.vue'
 import { getEquipmentSummary } from '../../api/equipment-dashboard'
+import { getEquipmentList } from '../../api/equipment'
 
 const dialogVisible = ref(false)
+const keyword = ref('')
+const status = ref('')
 const handleSubmit = (payload: unknown) => console.log('equipment submit', payload)
+const reset = () => { keyword.value = ''; status.value = '' }
+
 const stats = ref([
   { label: '器材总数', value: 58 },
   { label: '正常使用', value: 52 },
   { label: '维护中', value: 4 },
   { label: '库存预警', value: 2 }
 ])
-const items = [
-  { equipmentNo: 'EQ-001', name: '跑步机', category: '有氧器械', quantity: 12, location: 'A区', status: '正常' },
-  { equipmentNo: 'EQ-002', name: '史密斯架', category: '力量器械', quantity: 3, location: 'B区', status: '维护中' }
-]
+const sourceItems = ref<any[]>([])
+const items = computed(() => sourceItems.value.filter(item => {
+  const byName = !keyword.value || item.name?.includes(keyword.value)
+  const byStatus = !status.value || item.status === status.value
+  return byName && byStatus
+}))
 
 onMounted(async () => {
   try {
-    const res = await getEquipmentSummary()
-    if (res?.data) {
+    const [summaryRes, listRes] = await Promise.all([getEquipmentSummary(), getEquipmentList()])
+    if (summaryRes?.data) {
       stats.value = [
-        { label: '器材总数', value: res.data.totalEquipment },
-        { label: '正常使用', value: res.data.normalEquipment },
-        { label: '维护中', value: res.data.maintainingEquipment },
-        { label: '库存预警', value: res.data.warningEquipment }
+        { label: '器材总数', value: summaryRes.data.totalEquipment },
+        { label: '正常使用', value: summaryRes.data.normalEquipment },
+        { label: '维护中', value: summaryRes.data.maintainingEquipment },
+        { label: '库存预警', value: summaryRes.data.warningEquipment }
       ]
+    }
+    if (listRes?.data) {
+      sourceItems.value = listRes.data
     }
   } catch (error) {
     console.warn('equipment dashboard fallback', error)
+    sourceItems.value = [
+      { equipmentNo: 'EQ-001', name: '跑步机', category: '有氧器械', quantity: 12, location: 'A区', status: '正常' },
+      { equipmentNo: 'EQ-002', name: '史密斯架', category: '力量器械', quantity: 3, location: 'B区', status: '维护中' }
+    ]
   }
 })
 </script>
