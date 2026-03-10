@@ -44,6 +44,26 @@
         </div>
       </div>
     </div>
+
+    <div class="grid bottom-grid">
+      <div class="card panel">
+        <h3>最近动态</h3>
+        <el-timeline>
+          <el-timeline-item timestamp="今天 09:30">新增会员 张三，办理黄金会员</el-timeline-item>
+          <el-timeline-item timestamp="今天 10:20">课程《燃脂搏击操》新增排期</el-timeline-item>
+          <el-timeline-item timestamp="今天 11:10">器材“史密斯架”状态变更为维护中</el-timeline-item>
+        </el-timeline>
+      </div>
+      <div class="card panel">
+        <h3>答辩亮点</h3>
+        <ul class="overview-list">
+          <li>前后端分离架构</li>
+          <li>Vue 3 + Spring Boot 3 新技术栈</li>
+          <li>多模块管理后台</li>
+          <li>页面逐步接入后端演示接口</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -87,6 +107,7 @@ onMounted(async () => {
 .hero-subtitle { margin-top: 8px; opacity: .92; }
 .grid { display:grid; gap:18px; }
 .content-grid { grid-template-columns: 2fr 1fr 1fr; }
+.bottom-grid { grid-template-columns: 1.3fr 1fr; }
 .card {
   padding:22px; border-radius:22px;
   background: linear-gradient(135deg,#ffffff,#f8fbff);
