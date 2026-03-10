@@ -47,6 +47,9 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="pagination-wrap">
+          <el-pagination layout="prev, pager, next, total" :total="announcements.length" />
+        </div>
       </el-card>
     </div>
     <AnnouncementFormDialog v-model="dialogVisible" title="公告信息" @submit="handleSubmit" />
@@ -101,4 +104,5 @@ onMounted(async () => {
 <style scoped lang="scss">
 .toolbar-card { margin-bottom:16px; }
 .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.pagination-wrap { display:flex; justify-content:flex-end; padding-top:16px; }
 </style>
