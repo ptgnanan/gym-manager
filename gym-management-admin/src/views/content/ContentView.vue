@@ -15,6 +15,16 @@
       </div>
     </div>
 
+    <el-card shadow="never" class="toolbar-card">
+      <el-form inline>
+        <el-form-item label="公告标题"><el-input v-model="keyword" placeholder="请输入公告标题" /></el-form-item>
+        <el-form-item>
+          <el-button type="primary">查询</el-button>
+          <el-button @click="keyword = ''">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
     <div class="content-grid">
       <el-card shadow="never">
         <template #header>轮播图</template>
@@ -44,12 +54,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AnnouncementFormDialog from '../../components/content/AnnouncementFormDialog.vue'
 import { getContentSummary } from '../../api/content-dashboard'
 import { getAnnouncements } from '../../api/content'
 
 const dialogVisible = ref(false)
+const keyword = ref('')
 const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
 const stats = ref([
   { label: '轮播图数量', value: 4 },
@@ -61,10 +72,11 @@ const banners = [
   { title: '新学期健身优惠活动', sort: 1, status: '启用' },
   { title: '私教课程推荐', sort: 2, status: '启用' }
 ]
-const announcements = ref([
+const sourceAnnouncements = ref<any[]>([
   { title: '关于清明节营业时间调整通知', category: '通知', status: '已发布' },
   { title: '春季塑形挑战赛报名开始', category: '活动', status: '已发布' }
 ])
+const announcements = computed(() => sourceAnnouncements.value.filter(item => !keyword.value || item.title?.includes(keyword.value)))
 
 onMounted(async () => {
   try {
@@ -78,7 +90,7 @@ onMounted(async () => {
       ]
     }
     if (announcementRes?.data) {
-      announcements.value = announcementRes.data
+      sourceAnnouncements.value = announcementRes.data
     }
   } catch (error) {
     console.warn('content dashboard fallback', error)
@@ -87,5 +99,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
+.toolbar-card { margin-bottom:16px; }
 .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 </style>

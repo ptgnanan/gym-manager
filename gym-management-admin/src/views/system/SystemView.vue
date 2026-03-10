@@ -41,23 +41,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { getSystemHealth } from '../../api/system'
 
-const stats = [
-  { label: '系统用户', value: 12 },
-  { label: '角色数量', value: 4 },
-  { label: '菜单节点', value: 36 },
-  { label: '活跃账号', value: 9 }
-]
-const users = [
+const sourceUsers = ref([
   { username: 'admin', nickname: '管理员', role: '系统管理员' },
   { username: 'reception01', nickname: '前台小李', role: '前台人员' }
-]
-const roles = [
+])
+const roles = ref([
   { name: '系统管理员', desc: '拥有系统全部权限' },
   { name: '前台人员', desc: '负责会员接待与订单处理' }
-]
+])
+const stats = computed(() => [
+  { label: '系统用户', value: sourceUsers.value.length },
+  { label: '角色数量', value: roles.value.length },
+  { label: '菜单节点', value: 36 },
+  { label: '活跃账号', value: 9 }
+])
+const users = computed(() => sourceUsers.value)
 const healthText = ref('系统运行正常，接口连通中')
 
 onMounted(async () => {
