@@ -19,9 +19,9 @@
       <el-card shadow="never">
         <template #header>今日课程排期</template>
         <el-timeline>
-          <el-timeline-item timestamp="09:00-10:00">燃脂搏击操 · 王教练 · A教室</el-timeline-item>
-          <el-timeline-item timestamp="14:00-15:30">核心私教进阶 · 刘教练 · 私教室1</el-timeline-item>
-          <el-timeline-item timestamp="19:00-20:00">瑜伽拉伸 · 陈教练 · B教室</el-timeline-item>
+          <el-timeline-item v-for="item in schedules" :key="item.time + item.name" :timestamp="item.time">
+            {{ item.name }} · {{ item.coach }} · {{ item.location }}
+          </el-timeline-item>
         </el-timeline>
       </el-card>
     </div>
@@ -52,28 +52,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import CourseFormDialog from '../../components/course/CourseFormDialog.vue'
+import { getCourseSummary, getTodaySchedules } from '../../api/course-dashboard'
+
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('course submit', payload)
-const stats = [
+const stats = ref([
   { label: '课程总数', value: 24 },
   { label: '本周排期', value: 68 },
   { label: '今日预约', value: 42 },
   { label: '私教记录', value: 15 }
-]
+])
+const schedules = ref([
+  { time: '09:00-10:00', name: '燃脂搏击操', coach: '王教练', location: 'A教室' },
+  { time: '14:00-15:30', name: '核心私教进阶', coach: '刘教练', location: '私教室1' },
+  { time: '19:00-20:00', name: '瑜伽拉伸', coach: '陈教练', location: 'B教室' }
+])
 const courses = [
   { name: '燃脂搏击操', category: '团课', coach: '王教练', duration: 60, capacity: 20, status: '上架' },
   { name: '核心私教进阶', category: '私教', coach: '刘教练', duration: 90, capacity: 1, status: '上架' }
 ]
+
+onMounted(async () => {
+  try {
+    const [summaryRes, scheduleRes] = await Promise.all([getCourseSummary(), getTodaySchedules()])
+    if (summaryRes?.data) {
+      stats.value = [
+        { label: '课程总数', value: summaryRes.data.totalCourses },
+        { label: '本周排期', value: summaryRes.data.weeklySchedules },
+        { label: '今日预约', value: summaryRes.data.todayReservations },
+        { label: '私教记录', value: summaryRes.data.privateTrainingRecords }
+      ]
+    }
+    if (scheduleRes?.data) {
+      schedules.value = scheduleRes.data
+    }
+  } catch (error) {
+    console.warn('course dashboard fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
-.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
-.stat-card { padding:18px; border-radius:18px; background:linear-gradient(135deg,#ffffff,#f7fbff); border:1px solid rgba(59,130,246,.08); }
-.label { color:var(--text-sub); margin-bottom:8px; }
-.value { font-size:28px; font-weight:700; }
 .schedule-panel { margin-bottom:16px; }
 </style>
