@@ -7,6 +7,14 @@
       </div>
       <el-button type="primary" @click="dialogVisible = true">发布公告</el-button>
     </div>
+
+    <div class="stats-grid">
+      <div class="stat-card" v-for="item in stats" :key="item.label">
+        <div class="label">{{ item.label }}</div>
+        <div class="value">{{ item.value }}</div>
+      </div>
+    </div>
+
     <div class="content-grid">
       <el-card shadow="never">
         <template #header>轮播图</template>
@@ -36,10 +44,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AnnouncementFormDialog from '../../components/content/AnnouncementFormDialog.vue'
+import { getContentSummary } from '../../api/content-dashboard'
+
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
+const stats = ref([
+  { label: '轮播图数量', value: 4 },
+  { label: '公告总数', value: 12 },
+  { label: '已发布', value: 10 },
+  { label: '草稿数', value: 2 }
+])
 const banners = [
   { title: '新学期健身优惠活动', sort: 1, status: '启用' },
   { title: '私教课程推荐', sort: 2, status: '启用' }
@@ -48,10 +64,24 @@ const announcements = [
   { title: '关于清明节营业时间调整通知', category: '通知', status: '已发布' },
   { title: '春季塑形挑战赛报名开始', category: '活动', status: '已发布' }
 ]
+
+onMounted(async () => {
+  try {
+    const res = await getContentSummary()
+    if (res?.data) {
+      stats.value = [
+        { label: '轮播图数量', value: res.data.bannerCount },
+        { label: '公告总数', value: res.data.announcementCount },
+        { label: '已发布', value: res.data.publishedCount },
+        { label: '草稿数', value: res.data.draftCount }
+      ]
+    }
+  } catch (error) {
+    console.warn('content dashboard fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
 .content-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 </style>
