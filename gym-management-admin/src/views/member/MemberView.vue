@@ -7,21 +7,21 @@
       </div>
       <div class="actions">
         <el-button plain>导出</el-button>
-        <el-button type="primary">新增会员</el-button>
+        <el-button type="primary" @click="dialogVisible = true">新增会员</el-button>
       </div>
     </div>
 
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
         <el-form-item label="会员姓名">
-          <el-input placeholder="请输入姓名" />
+          <el-input v-model="query.name" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="手机号">
-          <el-input placeholder="请输入手机号" />
+          <el-input v-model="query.phone" placeholder="请输入手机号" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary">查询</el-button>
-          <el-button>重置</el-button>
+          <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -41,16 +41,29 @@
         <el-table-column label="操作" width="220" fixed="right">
           <template #default>
             <el-button link type="primary">详情</el-button>
-            <el-button link type="primary">编辑</el-button>
+            <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
             <el-button link type="danger">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-wrap">
+        <el-pagination layout="prev, pager, next, total" :total="12" />
+      </div>
     </el-card>
+
+    <MemberFormDialog v-model="dialogVisible" title="会员信息" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { reactive, ref } from 'vue'
+import MemberFormDialog from '../../components/member/MemberFormDialog.vue'
+
+const dialogVisible = ref(false)
+const query = reactive({ name: '', phone: '' })
+const reset = () => { query.name = ''; query.phone = '' }
+const handleSubmit = (payload: unknown) => console.log('member submit', payload)
+
 const tableData = [
   { memberNo: 'M20260310001', name: '张三', phone: '13800000001', level: '黄金会员', status: '正常', registerTime: '2026-03-10 09:30:00' },
   { memberNo: 'M20260310002', name: '李四', phone: '13800000002', level: '普通会员', status: '正常', registerTime: '2026-03-10 09:45:00' }
@@ -62,4 +75,5 @@ const tableData = [
 .page-header p { color: var(--text-sub); margin: 6px 0 0; }
 .actions { display:flex; gap:12px; }
 .toolbar-card { margin-bottom: 16px; }
+.pagination-wrap { display:flex; justify-content:flex-end; padding-top:16px; }
 </style>

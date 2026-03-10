@@ -5,7 +5,7 @@
         <h2>课程管理</h2>
         <p>管理课程分类、课程、排期与预约记录</p>
       </div>
-      <el-button type="primary">新增课程</el-button>
+      <el-button type="primary" @click="dialogVisible = true">新增课程</el-button>
     </div>
 
     <div class="stats-grid">
@@ -27,19 +27,31 @@
             <el-tag :type="scope.row.status === '上架' ? 'success' : 'warning'">{{ scope.row.status }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="180">
+          <template #default>
+            <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
+            <el-button link type="danger">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
+
+    <CourseFormDialog v-model="dialogVisible" title="课程信息" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import CourseFormDialog from '../../components/course/CourseFormDialog.vue'
+
+const dialogVisible = ref(false)
+const handleSubmit = (payload: unknown) => console.log('course submit', payload)
 const stats = [
   { label: '课程总数', value: 24 },
   { label: '本周排期', value: 68 },
   { label: '今日预约', value: 42 },
   { label: '私教记录', value: 15 }
 ]
-
 const courses = [
   { name: '燃脂搏击操', category: '团课', coach: '王教练', duration: 60, capacity: 20, status: '上架' },
   { name: '核心私教进阶', category: '私教', coach: '刘教练', duration: 90, capacity: 1, status: '上架' }
