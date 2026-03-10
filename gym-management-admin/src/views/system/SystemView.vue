@@ -15,6 +15,11 @@
       </div>
     </div>
 
+    <el-card shadow="never" class="status-card">
+      <template #header>系统健康检查</template>
+      <el-alert :title="healthText" type="success" :closable="false" show-icon />
+    </el-card>
+
     <div class="system-grid">
       <el-card shadow="never">
         <template #header>系统用户</template>
@@ -36,6 +41,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { getSystemHealth } from '../../api/system'
+
 const stats = [
   { label: '系统用户', value: 12 },
   { label: '角色数量', value: 4 },
@@ -50,8 +58,21 @@ const roles = [
   { name: '系统管理员', desc: '拥有系统全部权限' },
   { name: '前台人员', desc: '负责会员接待与订单处理' }
 ]
+const healthText = ref('系统运行正常，接口连通中')
+
+onMounted(async () => {
+  try {
+    const res = await getSystemHealth()
+    if (res?.data?.status === 'ok') {
+      healthText.value = `服务状态正常，最近检查时间：${res.data.time}`
+    }
+  } catch (error) {
+    console.warn('system health fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
 .system-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.status-card { margin-bottom:16px; }
 </style>
