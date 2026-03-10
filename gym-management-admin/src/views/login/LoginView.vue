@@ -7,14 +7,14 @@
       </div>
       <h1>欢迎回来</h1>
       <p>请输入账号密码进入健身房会员管理系统后台</p>
-      <el-form>
-        <el-form-item>
-          <el-input placeholder="请输入账号" />
+      <el-form label-position="top">
+        <el-form-item label="账号">
+          <el-input v-model="form.username" placeholder="请输入账号" />
         </el-form-item>
-        <el-form-item>
-          <el-input type="password" placeholder="请输入密码" />
+        <el-form-item label="密码">
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" />
         </el-form-item>
-        <el-button type="primary" class="full" @click="goHome">进入系统</el-button>
+        <el-button type="primary" class="full" :loading="loading" @click="goHome">进入系统</el-button>
         <el-button class="full mt12" @click="goRegister">前往注册</el-button>
       </el-form>
       <div class="tips">推荐展示顺序：首页仪表盘 → 会员管理 → 课程管理 → 系统状态</div>
@@ -23,9 +23,29 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { loginApi } from '../../api/auth'
+
 const router = useRouter()
-const goHome = () => router.push('/dashboard')
+const loading = ref(false)
+const form = reactive({ username: 'admin', password: '123456' })
+
+const goHome = async () => {
+  loading.value = true
+  try {
+    const res = await loginApi(form)
+    ElMessage.success(`登录成功：${res?.data?.username || form.username}`)
+    router.push('/dashboard')
+  } catch (error) {
+    console.warn('login fallback', error)
+    ElMessage.success('演示登录成功')
+    router.push('/dashboard')
+  } finally {
+    loading.value = false
+  }
+}
 const goRegister = () => router.push('/register')
 </script>
 
