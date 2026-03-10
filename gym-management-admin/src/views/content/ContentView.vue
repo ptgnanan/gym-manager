@@ -65,39 +65,26 @@ import { getAnnouncements } from '../../api/content'
 const dialogVisible = ref(false)
 const keyword = ref('')
 const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
-const stats = ref([
-  { label: '轮播图数量', value: 4 },
-  { label: '公告总数', value: 12 },
-  { label: '已发布', value: 10 },
-  { label: '草稿数', value: 2 }
-])
-const banners = [
-  { title: '新学期健身优惠活动', sort: 1, status: '启用' },
-  { title: '私教课程推荐', sort: 2, status: '启用' }
-]
-const sourceAnnouncements = ref<any[]>([
-  { title: '关于清明节营业时间调整通知', category: '通知', status: '已发布' },
-  { title: '春季塑形挑战赛报名开始', category: '活动', status: '已发布' }
-])
+const stats = ref<any[]>([])
+const banners = ref<any[]>([])
+const sourceAnnouncements = ref<any[]>([])
 const announcements = computed(() => sourceAnnouncements.value.filter(item => !keyword.value || item.title?.includes(keyword.value)))
 
 onMounted(async () => {
-  try {
-    const [summaryRes, announcementRes] = await Promise.all([getContentSummary(), getAnnouncements()])
-    if (summaryRes?.data) {
-      stats.value = [
-        { label: '轮播图数量', value: summaryRes.data.bannerCount },
-        { label: '公告总数', value: summaryRes.data.announcementCount },
-        { label: '已发布', value: summaryRes.data.publishedCount },
-        { label: '草稿数', value: summaryRes.data.draftCount }
-      ]
-    }
-    if (announcementRes?.data) {
-      sourceAnnouncements.value = announcementRes.data
-    }
-  } catch (error) {
-    console.warn('content dashboard fallback', error)
+  const [summaryRes, announcementRes] = await Promise.all([getContentSummary(), getAnnouncements()])
+  if (summaryRes?.data) {
+    stats.value = [
+      { label: '轮播图数量', value: summaryRes.data.bannerCount },
+      { label: '公告总数', value: summaryRes.data.announcementCount },
+      { label: '已发布', value: summaryRes.data.publishedCount },
+      { label: '草稿数', value: summaryRes.data.draftCount }
+    ]
   }
+  banners.value = [
+    { title: '新学期健身优惠活动', sort: 1, status: '启用' },
+    { title: '私教课程推荐', sort: 2, status: '启用' }
+  ]
+  sourceAnnouncements.value = announcementRes?.data || []
 })
 </script>
 
