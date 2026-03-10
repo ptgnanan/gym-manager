@@ -7,6 +7,11 @@ const routes = [
     component: () => import('../views/login/LoginView.vue')
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/register/RegisterView.vue')
+  },
+  {
     path: '/',
     component: () => import('../layouts/AdminLayout.vue'),
     redirect: '/dashboard',

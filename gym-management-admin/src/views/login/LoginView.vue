@@ -15,6 +15,7 @@
           <el-input type="password" placeholder="请输入密码" />
         </el-form-item>
         <el-button type="primary" class="full" @click="goHome">进入系统</el-button>
+        <el-button class="full mt12" @click="goRegister">前往注册</el-button>
       </el-form>
       <div class="tips">推荐展示顺序：首页仪表盘 → 会员管理 → 课程管理 → 系统状态</div>
     </div>
@@ -25,6 +26,7 @@
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const goHome = () => router.push('/dashboard')
+const goRegister = () => router.push('/register')
 </script>
 
 <style scoped lang="scss">
@@ -45,6 +47,7 @@ const goHome = () => router.push('/dashboard')
 .brand-title { font-size: 22px; font-weight: 800; color: #111827; }
 .brand-subtitle { margin-top: 6px; color: #6b7280; }
 .full { width: 100%; }
+.mt12 { margin-top: 12px; }
 h1 { margin: 0 0 10px; }
 p { color: #6b7280; margin-bottom: 24px; }
 .tips { margin-top: 16px; color: #6b7280; font-size: 13px; line-height: 1.7; }
