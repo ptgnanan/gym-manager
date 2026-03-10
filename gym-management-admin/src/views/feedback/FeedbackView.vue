@@ -39,20 +39,34 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { getFeedbackList } from '../../api/feedback'
+
 const stats = [
   { label: '评价总数', value: 36 },
   { label: '待审核', value: 4 },
   { label: '本周体测', value: 12 },
   { label: '高分课程', value: 8 }
 ]
-const reviews = [
+const reviews = ref([
   { member: '张三', target: '燃脂搏击操', rating: 5, status: '已审核' },
   { member: '李四', target: '私教塑形课', rating: 4, status: '待审核' }
-]
+])
 const metrics = [
   { member: '张三', weight: 68, fat: '18%', bmi: 22.1 },
   { member: '李四', weight: 54, fat: '22%', bmi: 20.4 }
 ]
+
+onMounted(async () => {
+  try {
+    const res = await getFeedbackList()
+    if (res?.data) {
+      reviews.value = res.data
+    }
+  } catch (error) {
+    console.warn('feedback fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
