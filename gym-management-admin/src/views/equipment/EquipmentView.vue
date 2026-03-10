@@ -15,6 +15,17 @@
       </div>
     </div>
 
+    <el-card shadow="never" class="toolbar-card">
+      <el-form inline>
+        <el-form-item label="器材名称"><el-input placeholder="请输入器材名称" /></el-form-item>
+        <el-form-item label="状态"><el-select placeholder="请选择状态" style="width: 140px"><el-option label="正常" value="正常" /><el-option label="维护中" value="维护中" /></el-select></el-form-item>
+        <el-form-item>
+          <el-button type="primary">查询</el-button>
+          <el-button>重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
     <el-card shadow="never">
       <el-table :data="items">
         <el-table-column prop="equipmentNo" label="器材编号" min-width="140" />
@@ -41,27 +52,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import EquipmentFormDialog from '../../components/equipment/EquipmentFormDialog.vue'
+import { getEquipmentSummary } from '../../api/equipment-dashboard'
+
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('equipment submit', payload)
-const stats = [
+const stats = ref([
   { label: '器材总数', value: 58 },
   { label: '正常使用', value: 52 },
   { label: '维护中', value: 4 },
   { label: '库存预警', value: 2 }
-]
+])
 const items = [
   { equipmentNo: 'EQ-001', name: '跑步机', category: '有氧器械', quantity: 12, location: 'A区', status: '正常' },
   { equipmentNo: 'EQ-002', name: '史密斯架', category: '力量器械', quantity: 3, location: 'B区', status: '维护中' }
 ]
+
+onMounted(async () => {
+  try {
+    const res = await getEquipmentSummary()
+    if (res?.data) {
+      stats.value = [
+        { label: '器材总数', value: res.data.totalEquipment },
+        { label: '正常使用', value: res.data.normalEquipment },
+        { label: '维护中', value: res.data.maintainingEquipment },
+        { label: '库存预警', value: res.data.warningEquipment }
+      ]
+    }
+  } catch (error) {
+    console.warn('equipment dashboard fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
-.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
-.stat-card { padding:18px; border-radius:18px; background:linear-gradient(135deg,#ffffff,#f7fbff); border:1px solid rgba(59,130,246,.08); }
-.label { color:var(--text-sub); margin-bottom:8px; }
-.value { font-size:28px; font-weight:700; }
+.toolbar-card { margin-bottom:16px; }
 </style>
