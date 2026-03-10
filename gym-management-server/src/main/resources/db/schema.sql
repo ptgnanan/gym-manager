@@ -24,6 +24,33 @@ CREATE TABLE sys_role (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE sys_user_role (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  role_id BIGINT NOT NULL,
+  UNIQUE KEY uk_user_role (user_id, role_id)
+);
+
+CREATE TABLE sys_menu (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  parent_id BIGINT DEFAULT 0,
+  menu_name VARCHAR(50) NOT NULL,
+  route_path VARCHAR(100),
+  component_path VARCHAR(150),
+  permission_code VARCHAR(100),
+  icon VARCHAR(50),
+  sort_no INT NOT NULL DEFAULT 0,
+  visible TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE sys_role_menu (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  role_id BIGINT NOT NULL,
+  menu_id BIGINT NOT NULL,
+  UNIQUE KEY uk_role_menu (role_id, menu_id)
+);
+
 CREATE TABLE member_level (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   level_name VARCHAR(50) NOT NULL,
@@ -79,6 +106,30 @@ CREATE TABLE member_order (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE member_recharge_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  member_id BIGINT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  payment_method VARCHAR(20),
+  remark VARCHAR(255),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE member_package_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  member_id BIGINT NOT NULL,
+  package_id BIGINT NOT NULL,
+  start_date DATE,
+  end_date DATE,
+  total_sessions INT DEFAULT 0,
+  used_sessions INT DEFAULT 0,
+  remaining_sessions INT DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+  source_order_id BIGINT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 CREATE TABLE coach (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   coach_no VARCHAR(50) NOT NULL UNIQUE,
@@ -111,6 +162,43 @@ CREATE TABLE course (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE course_schedule (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  course_id BIGINT NOT NULL,
+  coach_id BIGINT NULL,
+  start_time DATETIME NOT NULL,
+  end_time DATETIME NOT NULL,
+  location VARCHAR(100),
+  max_capacity INT NOT NULL DEFAULT 20,
+  booked_count INT NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'OPEN'
+);
+
+CREATE TABLE course_reservation (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  reservation_no VARCHAR(50) NOT NULL UNIQUE,
+  member_id BIGINT NOT NULL,
+  schedule_id BIGINT NOT NULL,
+  reservation_type VARCHAR(20) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'BOOKED',
+  attended_flag TINYINT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE private_training_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  record_no VARCHAR(50) NOT NULL UNIQUE,
+  member_id BIGINT NOT NULL,
+  coach_id BIGINT NOT NULL,
+  course_id BIGINT NOT NULL,
+  schedule_id BIGINT,
+  session_count INT DEFAULT 1,
+  status VARCHAR(20) NOT NULL DEFAULT 'DONE',
+  completed_at DATETIME,
+  remark VARCHAR(255),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE feedback_review (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   member_id BIGINT NOT NULL,
@@ -120,6 +208,25 @@ CREATE TABLE feedback_review (
   content VARCHAR(1000),
   audit_status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE body_metric (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  member_id BIGINT NOT NULL,
+  coach_id BIGINT NULL,
+  height_cm DECIMAL(5,2),
+  weight_kg DECIMAL(5,2),
+  body_fat_rate DECIMAL(5,2),
+  bmi DECIMAL(5,2),
+  measure_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  remark VARCHAR(255)
+);
+
+CREATE TABLE equipment_category (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  category_name VARCHAR(50) NOT NULL,
+  description VARCHAR(255),
+  status TINYINT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE equipment (
@@ -134,6 +241,33 @@ CREATE TABLE equipment (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE equipment_stock_in_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  equipment_id BIGINT NOT NULL,
+  quantity INT NOT NULL,
+  remark VARCHAR(255),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE equipment_stock_out_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  equipment_id BIGINT NOT NULL,
+  quantity INT NOT NULL,
+  reason VARCHAR(255),
+  remark VARCHAR(255),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE equipment_maintenance_record (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  equipment_id BIGINT NOT NULL,
+  maintenance_type VARCHAR(50),
+  maintenance_date DATETIME NOT NULL,
+  cost_amount DECIMAL(10,2) DEFAULT 0.00,
+  status VARCHAR(20) NOT NULL DEFAULT 'DONE',
+  remark VARCHAR(255)
+);
+
 CREATE TABLE banner (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(100),
@@ -141,4 +275,30 @@ CREATE TABLE banner (
   link_url VARCHAR(255),
   sort_no INT NOT NULL DEFAULT 0,
   status TINYINT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE announcement_category (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  category_name VARCHAR(50) NOT NULL,
+  sort_no INT NOT NULL DEFAULT 0,
+  status TINYINT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE announcement (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  category_id BIGINT NULL,
+  title VARCHAR(200) NOT NULL,
+  summary VARCHAR(500),
+  content TEXT,
+  publish_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+  published_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE site_content (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  content_key VARCHAR(50) NOT NULL UNIQUE,
+  content_title VARCHAR(100) NOT NULL,
+  content_value TEXT,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
