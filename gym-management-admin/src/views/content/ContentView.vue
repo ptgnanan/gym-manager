@@ -5,7 +5,7 @@
         <h2>内容管理</h2>
         <p>管理轮播图、公告和系统内容说明</p>
       </div>
-      <el-button type="primary">发布公告</el-button>
+      <el-button type="primary" @click="dialogVisible = true">发布公告</el-button>
     </div>
     <div class="content-grid">
       <el-card shadow="never">
@@ -22,13 +22,24 @@
           <el-table-column prop="title" label="标题" min-width="180" />
           <el-table-column prop="category" label="分类" min-width="100" />
           <el-table-column prop="status" label="状态" min-width="100" />
+          <el-table-column label="操作" width="160">
+            <template #default>
+              <el-button link type="primary" @click="dialogVisible = true">编辑</el-button>
+              <el-button link type="danger">删除</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
     </div>
+    <AnnouncementFormDialog v-model="dialogVisible" title="公告信息" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import AnnouncementFormDialog from '../../components/content/AnnouncementFormDialog.vue'
+const dialogVisible = ref(false)
+const handleSubmit = (payload: unknown) => console.log('announcement submit', payload)
 const banners = [
   { title: '新学期健身优惠活动', sort: 1, status: '启用' },
   { title: '私教课程推荐', sort: 2, status: '启用' }
