@@ -15,6 +15,17 @@
       </div>
     </div>
 
+    <div class="schedule-panel">
+      <el-card shadow="never">
+        <template #header>今日课程排期</template>
+        <el-timeline>
+          <el-timeline-item timestamp="09:00-10:00">燃脂搏击操 · 王教练 · A教室</el-timeline-item>
+          <el-timeline-item timestamp="14:00-15:30">核心私教进阶 · 刘教练 · 私教室1</el-timeline-item>
+          <el-timeline-item timestamp="19:00-20:00">瑜伽拉伸 · 陈教练 · B教室</el-timeline-item>
+        </el-timeline>
+      </el-card>
+    </div>
+
     <el-card shadow="never">
       <el-table :data="courses">
         <el-table-column prop="name" label="课程名称" min-width="160" />
@@ -43,7 +54,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CourseFormDialog from '../../components/course/CourseFormDialog.vue'
-
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('course submit', payload)
 const stats = [
@@ -65,4 +75,5 @@ const courses = [
 .stat-card { padding:18px; border-radius:18px; background:linear-gradient(135deg,#ffffff,#f7fbff); border:1px solid rgba(59,130,246,.08); }
 .label { color:var(--text-sub); margin-bottom:8px; }
 .value { font-size:28px; font-weight:700; }
+.schedule-panel { margin-bottom:16px; }
 </style>
