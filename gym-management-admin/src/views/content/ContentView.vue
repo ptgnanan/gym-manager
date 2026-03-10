@@ -1,1 +1,46 @@
-<template><div><h2>内容管理</h2><p>轮播图、公告、站点内容模块骨架已创建。</p></div></template>
+<template>
+  <div>
+    <div class="page-header">
+      <div>
+        <h2>内容管理</h2>
+        <p>管理轮播图、公告和系统内容说明</p>
+      </div>
+      <el-button type="primary">发布公告</el-button>
+    </div>
+    <div class="content-grid">
+      <el-card shadow="never">
+        <template #header>轮播图</template>
+        <el-table :data="banners">
+          <el-table-column prop="title" label="标题" min-width="120" />
+          <el-table-column prop="sort" label="排序" min-width="80" />
+          <el-table-column prop="status" label="状态" min-width="100" />
+        </el-table>
+      </el-card>
+      <el-card shadow="never">
+        <template #header>公告列表</template>
+        <el-table :data="announcements">
+          <el-table-column prop="title" label="标题" min-width="180" />
+          <el-table-column prop="category" label="分类" min-width="100" />
+          <el-table-column prop="status" label="状态" min-width="100" />
+        </el-table>
+      </el-card>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+const banners = [
+  { title: '新学期健身优惠活动', sort: 1, status: '启用' },
+  { title: '私教课程推荐', sort: 2, status: '启用' }
+]
+const announcements = [
+  { title: '关于清明节营业时间调整通知', category: '通知', status: '已发布' },
+  { title: '春季塑形挑战赛报名开始', category: '活动', status: '已发布' }
+]
+</script>
+
+<style scoped lang="scss">
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.page-header p { color: var(--text-sub); margin: 6px 0 0; }
+.content-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+</style>
