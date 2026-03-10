@@ -11,6 +11,13 @@
       </div>
     </div>
 
+    <div class="stats-grid">
+      <div class="stat-card" v-for="item in stats" :key="item.label">
+        <div class="label">{{ item.label }}</div>
+        <div class="value">{{ item.value }}</div>
+      </div>
+    </div>
+
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
         <el-form-item label="会员姓名">
@@ -24,6 +31,17 @@
           <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
+    </el-card>
+
+    <el-card shadow="never" class="recent-card">
+      <template #header>最近订单</template>
+      <el-table :data="recentOrders">
+        <el-table-column prop="orderNo" label="订单号" min-width="160" />
+        <el-table-column prop="memberName" label="会员" min-width="100" />
+        <el-table-column prop="packageName" label="套餐" min-width="140" />
+        <el-table-column prop="amount" label="金额" min-width="100" />
+        <el-table-column prop="status" label="状态" min-width="100" />
+      </el-table>
     </el-card>
 
     <el-card shadow="never">
@@ -56,24 +74,54 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import MemberFormDialog from '../../components/member/MemberFormDialog.vue'
+import { getMemberSummary, getRecentOrders } from '../../api/member-dashboard'
 
 const dialogVisible = ref(false)
 const query = reactive({ name: '', phone: '' })
 const reset = () => { query.name = ''; query.phone = '' }
 const handleSubmit = (payload: unknown) => console.log('member submit', payload)
 
+const stats = ref([
+  { label: '会员总数', value: 286 },
+  { label: '今日新增', value: 18 },
+  { label: '有效套餐', value: 164 },
+  { label: '待处理订单', value: 5 }
+])
+
+const recentOrders = ref([
+  { orderNo: 'O20260310001', memberName: '张三', packageName: '月卡', amount: '299.00', status: '已支付' },
+  { orderNo: 'O20260310002', memberName: '李四', packageName: '私教10节课', amount: '1999.00', status: '待支付' }
+])
+
 const tableData = [
   { memberNo: 'M20260310001', name: '张三', phone: '13800000001', level: '黄金会员', status: '正常', registerTime: '2026-03-10 09:30:00' },
   { memberNo: 'M20260310002', name: '李四', phone: '13800000002', level: '普通会员', status: '正常', registerTime: '2026-03-10 09:45:00' }
 ]
+
+onMounted(async () => {
+  try {
+    const [summaryRes, orderRes] = await Promise.all([getMemberSummary(), getRecentOrders()])
+    if (summaryRes?.data) {
+      stats.value = [
+        { label: '会员总数', value: summaryRes.data.totalMembers },
+        { label: '今日新增', value: summaryRes.data.todayNewMembers },
+        { label: '有效套餐', value: summaryRes.data.activePackages },
+        { label: '待处理订单', value: summaryRes.data.pendingOrders }
+      ]
+    }
+    if (orderRes?.data) {
+      recentOrders.value = orderRes.data
+    }
+  } catch (error) {
+    console.warn('member dashboard fallback', error)
+  }
+})
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
 .actions { display:flex; gap:12px; }
-.toolbar-card { margin-bottom: 16px; }
+.toolbar-card, .recent-card { margin-bottom: 16px; }
 .pagination-wrap { display:flex; justify-content:flex-end; padding-top:16px; }
 </style>
