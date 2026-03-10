@@ -37,10 +37,10 @@
       <div class="card panel">
         <h3>快捷入口</h3>
         <div class="quick-actions">
-          <el-button plain>新增会员</el-button>
-          <el-button plain>新增课程</el-button>
-          <el-button plain>创建订单</el-button>
-          <el-button plain>发布公告</el-button>
+          <el-button plain @click="$router.push('/member')">新增会员</el-button>
+          <el-button plain @click="$router.push('/course')">新增课程</el-button>
+          <el-button plain @click="$router.push('/member-order')">创建订单</el-button>
+          <el-button plain @click="$router.push('/content')">发布公告</el-button>
         </div>
       </div>
     </div>
@@ -67,7 +67,6 @@ const cards = [
 .hero-title { font-size: 28px; font-weight: 800; }
 .hero-subtitle { margin-top: 8px; opacity: .92; }
 .grid { display:grid; gap:18px; }
-.stats-grid { grid-template-columns: repeat(4, 1fr); }
 .content-grid { grid-template-columns: 2fr 1fr 1fr; }
 .card {
   padding:22px; border-radius:22px;
@@ -75,8 +74,6 @@ const cards = [
   border:1px solid rgba(59,130,246,.08);
   box-shadow: 0 14px 34px rgba(15,23,42,.06);
 }
-.label { color:#6b7280; margin-bottom:8px; }
-.value { font-size:32px; font-weight:800; color:#111827; }
 .trend { margin-top:8px; color:#3b82f6; font-size:13px; }
 .panel h3 { margin-top:0; }
 .overview-list { margin:0; padding-left:18px; color:#4b5563; line-height:1.9; }
