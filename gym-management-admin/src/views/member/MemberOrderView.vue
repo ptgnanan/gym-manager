@@ -7,6 +7,30 @@
       </div>
       <el-button type="primary" @click="dialogVisible = true">创建订单</el-button>
     </div>
+
+    <div class="stats-grid">
+      <div class="stat-card" v-for="item in stats" :key="item.label">
+        <div class="label">{{ item.label }}</div>
+        <div class="value">{{ item.value }}</div>
+      </div>
+    </div>
+
+    <el-card shadow="never" class="toolbar-card">
+      <el-form inline>
+        <el-form-item label="订单号"><el-input placeholder="请输入订单号" /></el-form-item>
+        <el-form-item label="支付状态">
+          <el-select placeholder="请选择" style="width:140px">
+            <el-option label="已支付" value="已支付" />
+            <el-option label="待支付" value="待支付" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary">查询</el-button>
+          <el-button>重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
     <el-card shadow="never">
       <el-table :data="orders">
         <el-table-column prop="orderNo" label="订单号" min-width="180" />
@@ -35,6 +59,12 @@ import { ref } from 'vue'
 import MemberOrderFormDialog from '../../components/member/MemberOrderFormDialog.vue'
 const dialogVisible = ref(false)
 const handleSubmit = (payload: unknown) => console.log('order submit', payload)
+const stats = [
+  { label: '订单总数', value: 126 },
+  { label: '已支付', value: 102 },
+  { label: '待支付', value: 18 },
+  { label: '本月营收', value: '¥ 32,600' }
+]
 const orders = [
   { orderNo: 'O20260310001', memberName: '张三', packageName: '月卡', payableAmount: '299.00', paymentStatus: '已支付' },
   { orderNo: 'O20260310002', memberName: '李四', packageName: '私教10节课', payableAmount: '1999.00', paymentStatus: '待支付' }
@@ -42,6 +72,5 @@ const orders = [
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
+.toolbar-card { margin-bottom:16px; }
 </style>
