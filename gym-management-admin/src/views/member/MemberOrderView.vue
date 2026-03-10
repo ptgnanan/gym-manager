@@ -17,16 +17,16 @@
 
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
-        <el-form-item label="订单号"><el-input placeholder="请输入订单号" /></el-form-item>
+        <el-form-item label="订单号"><el-input v-model="keyword" placeholder="请输入订单号" /></el-form-item>
         <el-form-item label="支付状态">
-          <el-select placeholder="请选择" style="width:140px">
+          <el-select v-model="paymentStatus" clearable placeholder="请选择" style="width:140px">
             <el-option label="已支付" value="已支付" />
             <el-option label="待支付" value="待支付" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary">查询</el-button>
-          <el-button>重置</el-button>
+          <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -55,20 +55,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import MemberOrderFormDialog from '../../components/member/MemberOrderFormDialog.vue'
+import { getMemberOrderList } from '../../api/member'
+
 const dialogVisible = ref(false)
+const keyword = ref('')
+const paymentStatus = ref('')
+const reset = () => { keyword.value = ''; paymentStatus.value = '' }
 const handleSubmit = (payload: unknown) => console.log('order submit', payload)
-const stats = [
-  { label: '订单总数', value: 126 },
-  { label: '已支付', value: 102 },
-  { label: '待支付', value: 18 },
+const sourceOrders = ref<any[]>([])
+const orders = computed(() => sourceOrders.value.filter(item => {
+  const byNo = !keyword.value || item.orderNo?.includes(keyword.value)
+  const byStatus = !paymentStatus.value || item.paymentStatus === paymentStatus.value
+  return byNo && byStatus
+}))
+const stats = computed(() => [
+  { label: '订单总数', value: sourceOrders.value.length || 0 },
+  { label: '已支付', value: sourceOrders.value.filter(i => i.paymentStatus === '已支付').length },
+  { label: '待支付', value: sourceOrders.value.filter(i => i.paymentStatus === '待支付').length },
   { label: '本月营收', value: '¥ 32,600' }
-]
-const orders = [
-  { orderNo: 'O20260310001', memberName: '张三', packageName: '月卡', payableAmount: '299.00', paymentStatus: '已支付' },
-  { orderNo: 'O20260310002', memberName: '李四', packageName: '私教10节课', payableAmount: '1999.00', paymentStatus: '待支付' }
-]
+])
+
+onMounted(async () => {
+  try {
+    const res = await getMemberOrderList()
+    if (res?.data) sourceOrders.value = res.data
+  } catch (error) {
+    console.warn('member order fallback', error)
+    sourceOrders.value = [
+      { orderNo: 'O20260310001', memberName: '张三', packageName: '月卡', payableAmount: '299.00', paymentStatus: '已支付' },
+      { orderNo: 'O20260310002', memberName: '李四', packageName: '私教10节课', payableAmount: '1999.00', paymentStatus: '待支付' }
+    ]
+  }
+})
 </script>
 
 <style scoped lang="scss">

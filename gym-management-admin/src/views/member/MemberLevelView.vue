@@ -17,10 +17,10 @@
 
     <el-card shadow="never" class="toolbar-card">
       <el-form inline>
-        <el-form-item label="等级名称"><el-input placeholder="请输入等级名称" /></el-form-item>
+        <el-form-item label="等级名称"><el-input v-model="keyword" placeholder="请输入等级名称" /></el-form-item>
         <el-form-item>
           <el-button type="primary">查询</el-button>
-          <el-button>重置</el-button>
+          <el-button @click="keyword = ''">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -44,20 +44,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import MemberLevelFormDialog from '../../components/member/MemberLevelFormDialog.vue'
+import { getMemberLevelList } from '../../api/member'
+
 const dialogVisible = ref(false)
+const keyword = ref('')
 const handleSubmit = (payload: unknown) => console.log('level submit', payload)
-const stats = [
-  { label: '等级总数', value: 4 },
-  { label: '普通会员', value: 1 },
-  { label: '高级会员', value: 2 },
-  { label: '最高折扣', value: '88%' }
-]
-const levels = [
-  { levelName: '普通会员', levelValue: 1, discountRate: '100%', description: '默认会员等级' },
-  { levelName: '黄金会员', levelValue: 2, discountRate: '92%', description: '享受课程折扣' }
-]
+const sourceLevels = ref<any[]>([])
+const levels = computed(() => sourceLevels.value.filter(item => !keyword.value || item.levelName?.includes(keyword.value)))
+const stats = computed(() => [
+  { label: '等级总数', value: sourceLevels.value.length || 0 },
+  { label: '普通会员', value: sourceLevels.value.filter(i => i.levelValue === 1).length },
+  { label: '高级会员', value: sourceLevels.value.filter(i => i.levelValue && i.levelValue > 1).length },
+  { label: '最高折扣', value: sourceLevels.value[0]?.discountRate || '100%' }
+])
+
+onMounted(async () => {
+  try {
+    const res = await getMemberLevelList()
+    if (res?.data) sourceLevels.value = res.data
+  } catch (error) {
+    console.warn('member level fallback', error)
+    sourceLevels.value = [
+      { levelName: '普通会员', levelValue: 1, discountRate: '100%', description: '默认会员等级' },
+      { levelName: '黄金会员', levelValue: 2, discountRate: '92%', description: '享受课程折扣' }
+    ]
+  }
+})
 </script>
 
 <style scoped lang="scss">
