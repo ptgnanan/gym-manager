@@ -7,6 +7,14 @@
       </div>
       <el-button type="primary">新增体测</el-button>
     </div>
+
+    <div class="stats-grid">
+      <div class="stat-card" v-for="item in stats" :key="item.label">
+        <div class="label">{{ item.label }}</div>
+        <div class="value">{{ item.value }}</div>
+      </div>
+    </div>
+
     <div class="feedback-grid">
       <el-card shadow="never">
         <template #header>评价反馈</template>
@@ -31,6 +39,12 @@
 </template>
 
 <script setup lang="ts">
+const stats = [
+  { label: '评价总数', value: 36 },
+  { label: '待审核', value: 4 },
+  { label: '本周体测', value: 12 },
+  { label: '高分课程', value: 8 }
+]
 const reviews = [
   { member: '张三', target: '燃脂搏击操', rating: 5, status: '已审核' },
   { member: '李四', target: '私教塑形课', rating: 4, status: '待审核' }
@@ -42,7 +56,5 @@ const metrics = [
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
 .feedback-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 </style>

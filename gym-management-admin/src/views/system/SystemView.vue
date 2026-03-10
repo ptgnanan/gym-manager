@@ -7,6 +7,14 @@
       </div>
       <el-button type="primary">新增用户</el-button>
     </div>
+
+    <div class="stats-grid">
+      <div class="stat-card" v-for="item in stats" :key="item.label">
+        <div class="label">{{ item.label }}</div>
+        <div class="value">{{ item.value }}</div>
+      </div>
+    </div>
+
     <div class="system-grid">
       <el-card shadow="never">
         <template #header>系统用户</template>
@@ -28,6 +36,12 @@
 </template>
 
 <script setup lang="ts">
+const stats = [
+  { label: '系统用户', value: 12 },
+  { label: '角色数量', value: 4 },
+  { label: '菜单节点', value: 36 },
+  { label: '活跃账号', value: 9 }
+]
 const users = [
   { username: 'admin', nickname: '管理员', role: '系统管理员' },
   { username: 'reception01', nickname: '前台小李', role: '前台人员' }
@@ -39,7 +53,5 @@ const roles = [
 </script>
 
 <style scoped lang="scss">
-.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.page-header p { color: var(--text-sub); margin: 6px 0 0; }
 .system-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 </style>
